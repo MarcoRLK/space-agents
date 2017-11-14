@@ -22,6 +22,7 @@ Boston, MA  02111-1307, USA.
  *****************************************************************/
 
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -31,10 +32,11 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.lang.acl.ACLMessage;
 
 
 public class Astronaut extends Agent {
-	
+	private static final long serialVersionUID = 1L;
 	private int humour;
 	private Hashtable <String, Integer> relationships;
 	private ArrayList <String> advantages;
@@ -45,26 +47,82 @@ public class Astronaut extends Agent {
 		advantages = new ArrayList<String>();
 		disadvantages = new ArrayList<String>();
 		
-		/*
+		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
 		ServiceDescription sd = new ServiceDescription(); 
 		sd.setType("mechanical stuff");
-		sd.setName("mechanical engineer");
+		sd.setName(getName());
 		dfd.addServices(sd); 
 		try {
 			DFService.register(this, dfd);
+			FindingSpaceshipIssues fssi = new FindingSpaceshipIssues(this);
+			addBehaviour(fssi);
 		}
 		catch (FIPAException fe) {
 			fe.printStackTrace();
-		}
-		*/
-		
-		
+			doDelete();
+		}	
+	
 	}
 	
+	class FindingSpaceshipIssues extends CyclicBehaviour{ 
+		
+		private static final long serialVersionUID = 1L;
+		
+		public FindingSpaceshipIssues(Agent astronaut) {
+			super(astronaut);
+		}
+		
+		@Override
+		public void action() {	
+			ACLMessage msg = myAgent.receive();
+			
+			if (msg!= null) {
+				ACLMessage reply = msg.createReply();
+				
+				if(msg.getPerformative() == ACLMessage.REQUEST) {
+					System.out.println("Recebi o request!!");
+					String content = msg.getContent();
+					System.out.println("Recebi a mensagem:" + content);
+					
+					if ((content != null)) {
+						System.out.println("RECEBI");
+						reply.setPerformative(ACLMessage.INFORM);
+						reply.setContent("Major Tom to Ground Control, going to perform an extravehicular activity");
+						System.out.println("REPLY: " + reply.getContent());
+					
+					} else{
+						System.out.println("REFUSE");
+						reply.setPerformative(ACLMessage.REFUSE);
+						reply.setContent("Major Tom to Ground Control, I'm incapable of perform this extravehicular activity");
+						System.out.println("REPLY: " + reply.getContent());
+					}
+					
+					send(reply);
+					System.out.println("Mensagem enviada");
+					
+					
+				} else {
+					
+					block();
+				}
+			}
+		}
+	
+	} // end of inner class
 	
 	
-	
+	protected void takeDown() {
+		
+		try {
+			System.out.println("Morri... brinks");
+			DFService.deregister(this);
+			
+		} catch (FIPAException e) {
+			e.printStackTrace();
+			
+		}
+	} 
 
-}
+}// end of class
