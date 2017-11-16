@@ -35,23 +35,24 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 
 
+@SuppressWarnings("unused")
 public class Astronaut extends Agent {
 	private static final long serialVersionUID = 1L;
-	private int humour;
-	private Hashtable <String, Integer> relationships;
-	private ArrayList <String> advantages;
-	private ArrayList <String> disadvantages;
+//	private int humour;
+//	private Hashtable <String, Integer> relationships;
+//	private ArrayList <String> advantages;
+//	private ArrayList <String> disadvantages;
 	
 	protected void setup() {
-		relationships = new Hashtable<String,Integer>();
-		advantages = new ArrayList<String>();
-		disadvantages = new ArrayList<String>();
+//		relationships = new Hashtable<String,Integer>();
+//		advantages = new ArrayList<String>();
+//		disadvantages = new ArrayList<String>();
 		
-		
+		AID id = new AID("astronaut", AID.ISLOCALNAME);
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
 		ServiceDescription sd = new ServiceDescription(); 
-		sd.setType("mechanical stuff");
+		sd.setType("mechanical-stuff");
 		sd.setName(getName());
 		dfd.addServices(sd); 
 		try {
@@ -80,22 +81,23 @@ public class Astronaut extends Agent {
 			
 			if (msg!= null) {
 				ACLMessage reply = msg.createReply();
-				
-				if(msg.getPerformative() == ACLMessage.REQUEST) {
+					
+				if(msg.getPerformative() == ACLMessage.INFORM) {
 					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
 					System.out.println("Recebi a mensagem:" + content);
+					System.out.println("Meu AID: " + getAID());
 					
 					if ((content != null)) {
 						System.out.println("RECEBI");
 						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("Major Tom to Ground Control, going to perform an extravehicular activity");
+						reply.setContent("Major "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
 						System.out.println("REPLY: " + reply.getContent());
 					
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
-						reply.setContent("Major Tom to Ground Control, I'm incapable of perform this extravehicular activity");
+						reply.setContent("Major "+ getLocalName() +" to Ground Control, I'm incapable of perform this extravehicular activity");
 						System.out.println("REPLY: " + reply.getContent());
 					}
 					
