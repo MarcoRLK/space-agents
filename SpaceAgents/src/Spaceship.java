@@ -34,8 +34,10 @@ public class Spaceship extends Agent {
 	
 		private AID[] astronauts;
 		private int random = 1; // deixar random depois!
+		public int spaceshipCondition; 
 	
 	protected void setup() {
+		spaceshipCondition = 10; 
 		addBehaviour(new SpaceShipIssues(this, 5000));
 	}
 	
@@ -46,35 +48,69 @@ public class Spaceship extends Agent {
 
 		@Override
 		protected void onTick() {
-			DFAgentDescription mechanic = new DFAgentDescription();
+			DFAgentDescription astronaut = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			System.out.println("//////////NOVA RODADA!///////////////\n" + "Condição da nave: "+ (spaceshipCondition));
 			switch(random) {
-				case 1: 
-					sd.setType("mechanical-stuff");
-					mechanic.addServices(sd);
-					msg.setPerformative(ACLMessage.INFORM); 
-					// não faz nada /\, mas caso quisermos mudar depois...
-					msg.setContent("little issue here");
+				case 1:
+					spaceshipCondition -= 2;
+					System.out.println("Parece que batemos em algo...\nCondição da nave: " + spaceshipCondition);
+					if	(spaceshipCondition > 6) {
+						sd.setType("mechanic");
+						msg.setContent("everything working fine! almost...");
+
+					} else if(spaceshipCondition > 3){
+						sd.setType("mechanic");
+						astronaut.addServices(sd);
+						// não faz nada /\, mas caso quisermos mudar depois...
+						msg.setContent("little issue here");	
+						
+					} else if(spaceshipCondition > 0) {
+						sd.setType("mechanic");
+						astronaut.addServices(sd);
+						msg.setContent("Houston, we have a problem...");	
+					}else {
+						// implementar fim
+					}
 					break;
 			}
 
 			try {
-				DFAgentDescription[] result = DFService.search(myAgent, mechanic); 
-				System.out.println("Found the following astronauts:");
+				DFAgentDescription[] result = DFService.search(myAgent, astronaut); 
+//				System.out.println("Found the following astronauts:");
 				astronauts = new AID[result.length];
 				for (int i = 0; i < result.length; ++i) {
 					astronauts[i] = result[i].getName();
-					System.out.println(astronauts[i].getName());
-					msg.addReceiver(astronauts[i]);
+//					System.out.println(astronauts[i].getName());
+				}
+				ACLMessage response;
+				for(int z = 0; z < result.length; ++z) {
+					msg.clearAllReceiver();
+					msg.addReceiver(astronauts[z]);
+					send(msg);
+					try {
+						Thread.sleep(1000);
+					}catch(InterruptedException e) {
+						System.out.println("erro:" + e);
+					};
+					
+					response = myAgent.receive();
+					if(response.getPerformative() == ACLMessage.CONFIRM) {
+						switch(random) {
+							case 1: 
+								spaceshipCondition += 3;
+						}
+						break;
+					}else if(response.getPerformative() == ACLMessage.INFORM && response.getContent().contains("everything is fine")) {
+						break;
+					}
 				}
 			}
 			catch (FIPAException fe) {
 				fe.printStackTrace();
 			}
 			
-			
-			send(msg);
 		}
 	}
 	
