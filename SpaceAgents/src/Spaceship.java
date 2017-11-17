@@ -34,12 +34,14 @@ public class Spaceship extends Agent {
 	
 		private AID[] astronauts;
 		private int random = 1; // deixar random depois!
-		public int spaceshipCondition; 
+		public int spaceshipCondition;
+		public int oxygenLevel;
 	
 	protected void setup() {
 		spaceshipCondition = 10; 
 		addBehaviour(new SpaceShipIssues(this, 5000));
 	}
+	
 	
 	class SpaceShipIssues extends TickerBehaviour{
 		public SpaceShipIssues(Agent a, long period) {
@@ -51,13 +53,15 @@ public class Spaceship extends Agent {
 			DFAgentDescription astronaut = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			System.out.println("//////////NOVA RODADA!///////////////\n" + "Condição da nave: "+ (spaceshipCondition));
+			System.out.println("\n//////////NEW ROUND!///////////////\n" + "Spaceship condition: "+ (spaceshipCondition)
+					+ "\nOxygen level: " + oxygenLevel);
 			switch(random) {
 				case 1:
 					spaceshipCondition -= 2;
-					System.out.println("Parece que batemos em algo...\nCondição da nave: " + spaceshipCondition);
+					System.out.println("Looks like we hit something...\nSpaceship condition: " + spaceshipCondition);
 					if	(spaceshipCondition > 6) {
 						sd.setType("mechanic");
+						astronaut.addServices(sd);
 						msg.setContent("everything working fine! almost...");
 
 					} else if(spaceshipCondition > 3){
@@ -74,6 +78,14 @@ public class Spaceship extends Agent {
 						// implementar fim
 					}
 					break;
+				case 2:
+					oxygenLevel -= 2;
+					System.out.println("Oxygen levels going low...");
+					if( oxygenLevel > 6) {
+						sd.setType("engineer");
+						msg.setContent("Still good...");
+					}
+					
 			}
 
 			try {

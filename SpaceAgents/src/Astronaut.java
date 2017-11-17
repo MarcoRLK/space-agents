@@ -39,6 +39,7 @@ import jade.lang.acl.ACLMessage;
 public class Astronaut extends Agent {
 	private static final long serialVersionUID = 1L;
 	private int health;
+	private String job;
 //	private Hashtable <String, Integer> relationships;
 //	private ArrayList <String> advantages;
 //	private ArrayList <String> disadvantages;
@@ -47,12 +48,14 @@ public class Astronaut extends Agent {
 //		relationships = new Hashtable<String,Integer>();
 //		advantages = new ArrayList<String>();
 //		disadvantages = new ArrayList<String>();
+		Object[] args = getArguments();
 		health = 10;
-		AID id = new AID("astronaut", AID.ISLOCALNAME);
+		job = args[0].toString();
+		AID id = new AID(job, AID.ISLOCALNAME);
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
 		ServiceDescription sd = new ServiceDescription(); 
-		sd.setType("mechanic");
+		sd.setType(job);
 		sd.setName(getName());
 		dfd.addServices(sd); 
 		try {
@@ -85,7 +88,7 @@ public class Astronaut extends Agent {
 				if(msg.getPerformative() == ACLMessage.INFORM) {
 //					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
-					System.out.println("Major " + getLocalName() + "\nHealth:" + health + "\nreceived a inform: " + content);
+					System.out.println(job + " " + getLocalName() + "\nHealth:" + health + "\nreceived a inform: " + content);
 					
 					if ((content != null)) {
 						switch(content) {
@@ -94,19 +97,19 @@ public class Astronaut extends Agent {
 							if(health > 6) {
 								health -= 1;
 								reply.setPerformative(ACLMessage.CONFIRM);
-								reply.setContent("Major "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
+								reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
 								System.out.println("REPLY: " + reply.getContent());
 								System.out.println("New health: " + health);
 							}else {
 								reply.setPerformative(ACLMessage.DISCONFIRM);
-								reply.setContent("Major "+ getLocalName() + " to Ground Control, i'm too tired too do this");
+								reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired too do this");
 								System.out.println("REPLY: " + reply.getContent());	
 							}
 							break;
 						case "everything working fine! almost...":
 //							System.out.println("RECEBI");
 							reply.setPerformative(ACLMessage.INFORM);
-							reply.setContent("Major "+ getLocalName() + " to Ground Control, everything is fine!");
+							reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
 							System.out.println("REPLY: " + reply.getContent());
 							break;
 						}
@@ -114,7 +117,7 @@ public class Astronaut extends Agent {
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
-						reply.setContent("Major "+ getLocalName() +" to Ground Control, I'm cant understand, please repeat");
+						reply.setContent(job + " "+ getLocalName() +" to Ground Control, I'm cant understand, please repeat");
 						System.out.println("REPLY: " + reply.getContent());
 					}
 					
