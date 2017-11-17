@@ -7,8 +7,11 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 public class Medic extends Agent {
+	
+	private AID[] astronautAgents;
 
 	protected void setup() {
 		AID id = new AID("medic", AID.ISLOCALNAME);
@@ -21,7 +24,7 @@ public class Medic extends Agent {
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,15000);
+			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,2000);
 			addBehaviour(tcd);
 			addBehaviour(sotb);
 		}
@@ -86,19 +89,60 @@ public class Medic extends Agent {
 		  public ShowOffTickerBehaviour(Agent a, long period) {                                 
 		    super(a, period);                                                                                                      
 		  }                                                                                
-		                                                                                   
+		  
 		  private static final long serialVersionUID = 1L;                                 
 		                                                                                   
-		  protected void onTick() {                                                        
-		                                                      
-		        System.out.println( "Eu sou formado em medicina, então eu sou fera!");
-		        try {
-					Thread.sleep(8000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+			protected void onTick() {
+				System.out.println("Trying to find health problems on crew.");                                   
+				DFAgentDescription astronaut = new DFAgentDescription();               
+				ServiceDescription sd = new ServiceDescription();                     
+				sd.setType("Mechanic");                                           
+				astronaut.addServices(sd);
+				
+				ACLMessage offerHelp = new ACLMessage(ACLMessage.INFORM);
+				offerHelp.setContent("Do you need help?");
+				ACLMessage response;
+				
+				try {                                                                 
+					DFAgentDescription[] result = DFService.search(myAgent,astronaut);  
+			
+					astronautAgents = new AID[result.length];
+					for (int i= 0; i < result.length; ++i) {                           		            	                              
+						astronautAgents[i] = result[i].getName();
+						System.out.println("Found the astronaut " + astronautAgents[i].getName());
+					}
+					
+					for(int j = 0;j < result.length;++j){
+						offerHelp.clearAllReceiver();
+						offerHelp.addReceiver(astronautAgents[j]);
+						send(offerHelp);
+						
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
+						response = myAgent.receive();
+						
+						if(response.getPerformative() == ACLMessage.CONFIRM) {
+								
+							System.out.println("I am busy treating someone's health.");
+							
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							break;
+						}
+						
+					}
+				}                                                                     
+				catch (FIPAException fe) {                                            
+					fe.printStackTrace();                                               
 				}
-		        System.out.println( "Terminei de fazer o meu show off!");                                                                          
-		  }                                                                              
+			}                                                                              
 	}     
 	
 }

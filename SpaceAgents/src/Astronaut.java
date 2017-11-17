@@ -112,8 +112,19 @@ public class Astronaut extends Agent {
 							reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
 							System.out.println("REPLY: " + reply.getContent());
 							break;
+						case "Do you need help?":
+							System.out.println("Im on treatment right now.");
+							reply.setPerformative(ACLMessage.CONFIRM);
+							reply.setContent("Lets start the treatment");
+							System.out.println("REPLY: " + reply.getContent());
+							//send(reply);
+							//try {
+							//	Thread.sleep(1000);
+							//} catch (InterruptedException e) {
+							//	e.printStackTrace();
+							//}
+							break;
 						}
-						
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
