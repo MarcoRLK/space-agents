@@ -135,8 +135,10 @@ public class Spaceship extends Agent {
 						switch(random) {
 							case 1: 
 								spaceshipCondition += 3;
+								break;
 							case 2:
 								oxygenLevel +=3;
+								break;
 						}
 						break;
 					}else if(response.getPerformative() == ACLMessage.INFORM) {

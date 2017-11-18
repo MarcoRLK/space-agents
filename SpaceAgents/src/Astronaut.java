@@ -84,7 +84,34 @@ public class Astronaut extends Agent {
 			
 			if (msg!= null) {
 				ACLMessage reply = msg.createReply();
-					
+				if(msg.getPerformative() == ACLMessage.REQUEST) {
+					String content = msg.getContent();
+					if(content != null) {
+						switch(msg.getConversationId()) {
+							case "medic":
+								switch(content) {
+									case "Do you need help?":
+										if(health < 6) {
+											reply.setPerformative(ACLMessage.CONFIRM);
+											reply.setContent("Please, i need help!");
+											System.out.println("REPLY: " + reply.getContent());
+											//send(reply);
+											//try {
+											//	Thread.sleep(1000);
+											//} catch (InterruptedException e) {
+											//	e.printStackTrace();
+											//}
+										} else {
+											reply.setPerformative(ACLMessage.DISCONFIRM);
+											reply.setContent("There's no need, im fine!");
+											System.out.println("REPLY: " + reply.getContent());
+										}
+										break;
+								}
+								break;				
+						}
+					}
+				}	
 				if(msg.getPerformative() == ACLMessage.INFORM) {
 //					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
@@ -126,22 +153,6 @@ public class Astronaut extends Agent {
 										reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to get some air");
 										System.out.println("REPLY: " + reply.getContent());
 										System.out.println("New health: " + health);
-										break;
-								}
-								break;
-							case "medic":
-								switch(content) {
-									case "Do you need help?":
-										System.out.println("Im on treatment right now.");
-										reply.setPerformative(ACLMessage.CONFIRM);
-										reply.setContent("Lets start the treatment");
-										System.out.println("REPLY: " + reply.getContent());
-										//send(reply);
-										//try {
-										//	Thread.sleep(1000);
-										//} catch (InterruptedException e) {
-										//	e.printStackTrace();
-										//}
 										break;
 								}
 								break;
