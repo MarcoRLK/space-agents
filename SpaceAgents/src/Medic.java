@@ -94,10 +94,16 @@ public class Medic extends Agent {
 		                                                                                   
 			protected void onTick() {
 				System.out.println("Trying to find health problems on crew.");                                   
-				DFAgentDescription astronaut = new DFAgentDescription();               
+				DFAgentDescription mechanic = new DFAgentDescription();               
 				ServiceDescription sd = new ServiceDescription();                     
-				sd.setType("mechanic");                                           
-				astronaut.addServices(sd);
+				sd.setType("mechanic");   
+				mechanic.addServices(sd);
+				
+				DFAgentDescription engineer = new DFAgentDescription();               
+				ServiceDescription sd2 = new ServiceDescription();                     
+				sd2.setType("engineer");   
+				engineer.addServices(sd2);
+
 				
 				ACLMessage offerHelp = new ACLMessage(ACLMessage.REQUEST);
 				offerHelp.setContent("Do you need help?");
@@ -105,15 +111,19 @@ public class Medic extends Agent {
 				ACLMessage response;
 				
 				try {                                                                 
-					DFAgentDescription[] result = DFService.search(myAgent,astronaut);  
+					DFAgentDescription[] result = DFService.search(myAgent,mechanic);
+					DFAgentDescription[] result2 = DFService.search(myAgent, engineer);
 			
-					astronautAgents = new AID[result.length];
+					astronautAgents = new AID[result.length + result2.length];
 					for (int i= 0; i < result.length; ++i) {                           		            	                              
 						astronautAgents[i] = result[i].getName();
 						System.out.println("Found the astronaut " + astronautAgents[i].getName());
 					}
-					
-					for(int j = 0;j < result.length;++j){
+					for(int z = 0; z < result2.length; z++) {
+						astronautAgents[z + result.length] = result2[z].getName();
+						System.out.println("Found the astronaut " + astronautAgents[z + result.length].getName());
+					}
+					for(int j = 0;j < (result.length+result2.length);++j){
 						offerHelp.clearAllReceiver();
 						offerHelp.addReceiver(astronautAgents[j]);
 						send(offerHelp);

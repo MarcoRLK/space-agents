@@ -108,7 +108,7 @@ public class Astronaut extends Agent {
 										}
 										break;
 									case "treating you...":
-										System.out.print(job + " " + getLocalName() + "receiving treatment!!");
+										System.out.print(job + " " + getLocalName() + " receiving treatment!!\n");
 										health += 3;
 								}
 								break;				
@@ -123,7 +123,7 @@ public class Astronaut extends Agent {
 					System.out.println(job + " " + getLocalName() + "\nHealth:" + health + "\nreceived a inform: " + content);
 					if(health <= 6) {
 						reply.setPerformative(ACLMessage.DISCONFIRM);
-						reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired too do this");
+						reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired to do this");
 						System.out.println("REPLY: " + reply.getContent());	
 					}
 					else if ((content != null)) {
