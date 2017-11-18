@@ -91,7 +91,7 @@ public class Astronaut extends Agent {
 							case "medic":
 								switch(content) {
 									case "Do you need help?":
-										if(health < 6) {
+										if(health <= 6) {
 											reply.setPerformative(ACLMessage.CONFIRM);
 											reply.setContent("Please, i need help!");
 											System.out.println("REPLY: " + reply.getContent());
@@ -107,9 +107,13 @@ public class Astronaut extends Agent {
 											System.out.println("REPLY: " + reply.getContent());
 										}
 										break;
+									case "treating you...":
+										System.out.print(job + " " + getLocalName() + "receiving treatment!!");
+										health += 3;
 								}
 								break;				
 						}
+						send(reply);
 					}
 				}	
 				if(msg.getPerformative() == ACLMessage.INFORM) {

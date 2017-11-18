@@ -24,7 +24,7 @@ public class Medic extends Agent {
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,2000);
+			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,20000);
 			addBehaviour(tcd);
 			addBehaviour(sotb);
 		}
@@ -96,11 +96,12 @@ public class Medic extends Agent {
 				System.out.println("Trying to find health problems on crew.");                                   
 				DFAgentDescription astronaut = new DFAgentDescription();               
 				ServiceDescription sd = new ServiceDescription();                     
-				sd.setType("Mechanic");                                           
+				sd.setType("mechanic");                                           
 				astronaut.addServices(sd);
 				
-				ACLMessage offerHelp = new ACLMessage(ACLMessage.INFORM);
+				ACLMessage offerHelp = new ACLMessage(ACLMessage.REQUEST);
 				offerHelp.setContent("Do you need help?");
+				offerHelp.setConversationId("medic");
 				ACLMessage response;
 				
 				try {                                                                 
@@ -127,14 +128,21 @@ public class Medic extends Agent {
 						
 						if(response.getPerformative() == ACLMessage.CONFIRM) {
 								
-							System.out.println("I am busy treating someone's health.");
-							
+							System.out.println("Medic " + getLocalName() + ": I am busy treating someone's health.");
+							ACLMessage doTreatment = new ACLMessage(ACLMessage.REQUEST);
+							doTreatment.setContent("treating you...");
+							doTreatment.clearAllReceiver();
+							doTreatment.addReceiver(astronautAgents[j]);
+							doTreatment.setConversationId("medic");
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
+							send(doTreatment);
 							break;
+						}else if (response.getPerformative() == ACLMessage.DISCONFIRM){
+							System.out.println("Ok...");
 						}
 						
 					}
