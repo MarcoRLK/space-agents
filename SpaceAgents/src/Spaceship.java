@@ -29,16 +29,18 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import java.util.Random;
 
 public class Spaceship extends Agent {
-	
+		Random generator = new Random(System.currentTimeMillis());
 		private AID[] astronauts;
-		private int random = 1; // deixar random depois!
+		private int random;
 		public int spaceshipCondition;
 		public int oxygenLevel;
 	
 	protected void setup() {
-		spaceshipCondition = 10; 
+		spaceshipCondition = 10;
+		oxygenLevel = 10;
 		addBehaviour(new SpaceShipIssues(this, 5000));
 	}
 	
@@ -50,12 +52,24 @@ public class Spaceship extends Agent {
 
 		@Override
 		protected void onTick() {
+			random = generator.nextInt(3); // 0, 1, 2
+			System.out.println("AAAAAAAAAAAAAAAAAAAAA: " + random);
 			DFAgentDescription astronaut = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			System.out.println("\n//////////NEW ROUND!///////////////\n" + "Spaceship condition: "+ (spaceshipCondition)
-					+ "\nOxygen level: " + oxygenLevel);
+			System.out.println(
+							"\n//////////NEW ROUND!///////////////" +
+							"\nSpaceship condition: " + spaceshipCondition +
+							"\nOxygen level: " + oxygenLevel
+							);
+			
 			switch(random) {
+				case 0:
+					System.out.println("Another day, another dollar... everything is good!");
+					sd.setType("none");
+					astronaut.addServices(sd);
+					msg.setContent("Another day, another dollar... everything is good!");
+					break;
 				case 1:
 					spaceshipCondition -= 2;
 					System.out.println("Looks like we hit something...\nSpaceship condition: " + spaceshipCondition);
@@ -63,27 +77,36 @@ public class Spaceship extends Agent {
 						sd.setType("mechanic");
 						astronaut.addServices(sd);
 						msg.setContent("everything working fine! almost...");
+						msg.setConversationId("mechanic");
 
 					} else if(spaceshipCondition > 3){
 						sd.setType("mechanic");
 						astronaut.addServices(sd);
-						// não faz nada /\, mas caso quisermos mudar depois...
 						msg.setContent("little issue here");	
+						msg.setConversationId("mechanic");
 						
 					} else if(spaceshipCondition > 0) {
 						sd.setType("mechanic");
 						astronaut.addServices(sd);
-						msg.setContent("Houston, we have a problem...");	
+						msg.setContent("Houston, we have a problem...");
+						msg.setConversationId("mechanic");
 					}else {
 						// implementar fim
 					}
 					break;
 				case 2:
 					oxygenLevel -= 2;
-					System.out.println("Oxygen levels going low...");
+					System.out.println("Oxygen levels going low...\n Oxygel levels: " + oxygenLevel);
 					if( oxygenLevel > 6) {
 						sd.setType("engineer");
+						astronaut.addServices(sd);
 						msg.setContent("Still good...");
+						msg.setConversationId("engineer");
+					}else {
+						sd.setType("engineer");
+						astronaut.addServices(sd);
+						msg.setContent("Oxygen hitting critical levels!");
+						msg.setConversationId("engineer");
 					}
 					
 			}
@@ -112,9 +135,11 @@ public class Spaceship extends Agent {
 						switch(random) {
 							case 1: 
 								spaceshipCondition += 3;
+							case 2:
+								oxygenLevel +=3;
 						}
 						break;
-					}else if(response.getPerformative() == ACLMessage.INFORM && response.getContent().contains("everything is fine")) {
+					}else if(response.getPerformative() == ACLMessage.INFORM) {
 						break;
 					}
 				}

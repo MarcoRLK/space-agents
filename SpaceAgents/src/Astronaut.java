@@ -88,43 +88,69 @@ public class Astronaut extends Agent {
 				if(msg.getPerformative() == ACLMessage.INFORM) {
 //					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
+					System.out.println(" ---------------- ");
 					System.out.println(job + " " + getLocalName() + "\nHealth:" + health + "\nreceived a inform: " + content);
-					
-					if ((content != null)) {
-						switch(content) {
-						case "little issue here":
-//							System.out.println("RECEBI");
-							if(health > 6) {
-								health -= 1;
-								reply.setPerformative(ACLMessage.CONFIRM);
-								reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
-								System.out.println("REPLY: " + reply.getContent());
-								System.out.println("New health: " + health);
-							}else {
-								reply.setPerformative(ACLMessage.DISCONFIRM);
-								reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired too do this");
-								System.out.println("REPLY: " + reply.getContent());	
-							}
-							break;
-						case "everything working fine! almost...":
-//							System.out.println("RECEBI");
-							reply.setPerformative(ACLMessage.INFORM);
-							reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
-							System.out.println("REPLY: " + reply.getContent());
-							break;
-						case "Do you need help?":
-							System.out.println("Im on treatment right now.");
-							reply.setPerformative(ACLMessage.CONFIRM);
-							reply.setContent("Lets start the treatment");
-							System.out.println("REPLY: " + reply.getContent());
-							//send(reply);
-							//try {
-							//	Thread.sleep(1000);
-							//} catch (InterruptedException e) {
-							//	e.printStackTrace();
-							//}
-							break;
+					if(health <= 6) {
+						reply.setPerformative(ACLMessage.DISCONFIRM);
+						reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired too do this");
+						System.out.println("REPLY: " + reply.getContent());	
+					}
+					else if ((content != null)) {
+						switch(msg.getConversationId()) {
+							case "mechanic":
+								switch(content) {
+									case "little issue here":
+										health -= 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
+										System.out.println("REPLY: " + reply.getContent());
+										System.out.println("New health: " + health);
+										break;
+									case "everything working fine! almost...":
+										reply.setPerformative(ACLMessage.INFORM);
+										reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
+										System.out.println("REPLY: " + reply.getContent());
+										break;
+								}
+								break;
+							case "engineer":
+								switch(content) {
+									case "Still good...":
+										reply.setPerformative(ACLMessage.INFORM);
+										reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
+										System.out.println("REPLY: " + reply.getContent());
+										break;
+									case "Oxygen hitting critical levels!":
+										health -= 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to get some air");
+										System.out.println("REPLY: " + reply.getContent());
+										System.out.println("New health: " + health);
+										break;
+								}
+								break;
+							case "medic":
+								switch(content) {
+									case "Do you need help?":
+										System.out.println("Im on treatment right now.");
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("Lets start the treatment");
+										System.out.println("REPLY: " + reply.getContent());
+										//send(reply);
+										//try {
+										//	Thread.sleep(1000);
+										//} catch (InterruptedException e) {
+										//	e.printStackTrace();
+										//}
+										break;
+								}
+								break;
+							default:
+								System.out.println("Time to take some rest...");
+								reply.setPerformative(ACLMessage.INFORM);
+								reply.setContent("Time to take some rest...");
 						}
+						
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
