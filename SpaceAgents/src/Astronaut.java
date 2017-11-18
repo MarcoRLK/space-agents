@@ -95,12 +95,6 @@ public class Astronaut extends Agent {
 											reply.setPerformative(ACLMessage.CONFIRM);
 											reply.setContent("Please, i need help!");
 											System.out.println("REPLY: " + reply.getContent());
-											//send(reply);
-											//try {
-											//	Thread.sleep(1000);
-											//} catch (InterruptedException e) {
-											//	e.printStackTrace();
-											//}
 										} else {
 											reply.setPerformative(ACLMessage.DISCONFIRM);
 											reply.setContent("There's no need, im fine!");
@@ -109,6 +103,11 @@ public class Astronaut extends Agent {
 										break;
 									case "treating you...":
 										System.out.print(job + " " + getLocalName() + " receiving treatment!!\n");
+										try {
+												Thread.sleep(1000);
+										} catch (InterruptedException e) {
+												e.printStackTrace();
+										}
 										health += 3;
 								}
 								break;				

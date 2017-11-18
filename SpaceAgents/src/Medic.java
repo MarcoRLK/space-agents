@@ -24,7 +24,7 @@ public class Medic extends Agent {
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,20000);
+			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,3000);
 			addBehaviour(tcd);
 			addBehaviour(sotb);
 		}
@@ -137,19 +137,18 @@ public class Medic extends Agent {
 						response = myAgent.receive();
 						
 						if(response.getPerformative() == ACLMessage.CONFIRM) {
-								
-							System.out.println("Medic " + getLocalName() + ": I am busy treating someone's health.");
 							ACLMessage doTreatment = new ACLMessage(ACLMessage.REQUEST);
 							doTreatment.setContent("treating you...");
 							doTreatment.clearAllReceiver();
 							doTreatment.addReceiver(astronautAgents[j]);
 							doTreatment.setConversationId("medic");
+							send(doTreatment);
+							System.out.println("Medic " + getLocalName() + ": I am busy treating " + astronautAgents[j].getLocalName() + "'s health.");
 							try {
-								Thread.sleep(1000);
+								Thread.sleep(5000);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
-							send(doTreatment);
 							break;
 						}else if (response.getPerformative() == ACLMessage.DISCONFIRM){
 							System.out.println("Ok...");
