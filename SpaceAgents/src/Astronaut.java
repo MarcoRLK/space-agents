@@ -88,15 +88,9 @@ public class Astronaut extends Agent {
 		protected void onTick() {
 			random = generator.nextInt(4); // 0, 1, 2, 3
 			if(random == 0) {
-				System.out.println("I'm not feeling very well...");
+				System.out.println(job + " " + getLocalName() + ": " + "I'm not feeling very well...");
 				health--;
 				System.out.println("New health: " + health);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-						e.printStackTrace();
-				}
-				random = generator.nextInt(4);
 			}
 			
 		if(health <= 0) {
