@@ -23,9 +23,11 @@ Boston, MA  02111-1307, USA.
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Random;
 
 import jade.core.AID;
 import jade.domain.DFService;
@@ -38,8 +40,10 @@ import jade.lang.acl.ACLMessage;
 @SuppressWarnings("unused")
 public class Astronaut extends Agent {
 	private static final long serialVersionUID = 1L;
+	Random generator = new Random(System.currentTimeMillis());
 	private int health;
 	private String job;
+	private int random;
 //	private Hashtable <String, Integer> relationships;
 //	private ArrayList <String> advantages;
 //	private ArrayList <String> disadvantages;
@@ -51,6 +55,7 @@ public class Astronaut extends Agent {
 		Object[] args = getArguments();
 		health = 10;
 		job = args[0].toString();
+		random = generator.nextInt(4); // 0, 1, 2, 3
 		AID id = new AID(job, AID.ISLOCALNAME);
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
@@ -61,13 +66,32 @@ public class Astronaut extends Agent {
 		try {
 			DFService.register(this, dfd);
 			FindingSpaceshipIssues fssi = new FindingSpaceshipIssues(this);
+			ImOnlyHumanBehaviour humanBehaviour = new ImOnlyHumanBehaviour(this, 5000);
 			addBehaviour(fssi);
+			addBehaviour(humanBehaviour);
 		}
 		catch (FIPAException fe) {
 			fe.printStackTrace();
 			doDelete();
 		}	
 	
+	}
+	
+	class ImOnlyHumanBehaviour extends TickerBehaviour {
+
+		public ImOnlyHumanBehaviour(Agent a, long period) {
+			super(a, period);
+		}
+
+		@Override
+		protected void onTick() {
+			random = generator.nextInt(4); // 0, 1, 2, 3
+			if(random == 0) {
+				System.out.println("I'm not feeling very well...");
+				health--;
+				System.out.println("New health: " + health);
+			}
+		}	
 	}
 	
 	class FindingSpaceshipIssues extends CyclicBehaviour{ 
@@ -177,7 +201,7 @@ public class Astronaut extends Agent {
 					
 					
 				}
-				if(health < 6){                                  
+				if(health <= 6){                                  
 					DFAgentDescription medic = new DFAgentDescription();               
 					ServiceDescription sd = new ServiceDescription();                     
 					sd.setType("medic");   
