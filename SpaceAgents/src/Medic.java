@@ -18,15 +18,15 @@ public class Medic extends Agent {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
 		ServiceDescription sd = new ServiceDescription(); 
-		sd.setType("healing-stuffs");
+		sd.setType("medic");
 		sd.setName(getName());
 		dfd.addServices(sd); 
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			ShowOffTickerBehaviour sotb = new ShowOffTickerBehaviour(this,3000);
+			CheckCrewHealth cch = new CheckCrewHealth(this,20000);
 			addBehaviour(tcd);
-			addBehaviour(sotb);
+			addBehaviour(cch);
 		}
 		catch (FIPAException fe) {
 			fe.printStackTrace();
@@ -49,25 +49,28 @@ public class Medic extends Agent {
 			if (msg!= null) {
 				ACLMessage reply = msg.createReply();
 					
-				if(msg.getPerformative() == ACLMessage.INFORM) {
+				if(msg.getPerformative() == ACLMessage.REQUEST) {
 					String content = msg.getContent();
 					
-					if ((content != null)) {
-						System.out.println("Sou um médico e recebi solicitação de tratamento! Ficarei ocupado por aproximadamente 15 minutos!");
-					
-						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("Médico "+ getLocalName() + " tratando tripulante que solicitou tratamento!");
-						System.out.println("REPLY: " + reply.getContent());
+					if ((content != null) && msg.getConversationId() == "calling-for-medic") {
+						System.out.println("I am " + getLocalName() + ", and i received a call for help!");
+						ACLMessage doTreatment = new ACLMessage(ACLMessage.CONFIRM);
+						doTreatment.setContent("I can treat you now.");
+						doTreatment.clearAllReceiver();
+						doTreatment.addReceiver(msg.getSender());
+						doTreatment.setConversationId("calling-for-medic");
+						send(doTreatment);
+						
+						System.out.println("Medic " + getLocalName() + ": I am busy treating " + msg.getSender().getLocalName() + "'s health.");
 						try {
-							Thread.sleep(15000);
+							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-				        System.out.println("Terminei o tratamento que estava realizando!");
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
-						reply.setContent("Médico "+ getLocalName() +" a mensagem pedindo por ajuda não foi clara o suficiente!");
+						reply.setContent("Médico "+ getLocalName() +": the message asking for help was not clear enough!");
 						System.out.println("REPLY: " + reply.getContent());
 					}
 					
@@ -84,9 +87,9 @@ public class Medic extends Agent {
 	
 	}
 	
-	class ShowOffTickerBehaviour extends TickerBehaviour {                                  
+	class CheckCrewHealth extends TickerBehaviour {                                  
         
-		  public ShowOffTickerBehaviour(Agent a, long period) {                                 
+		  public CheckCrewHealth(Agent a, long period) {                                 
 		    super(a, period);                                                                                                      
 		  }                                                                                
 		  

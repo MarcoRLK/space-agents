@@ -176,8 +176,62 @@ public class Astronaut extends Agent {
 //					System.out.println("Mensagem enviada");
 					
 					
-				} else {
+				}
+				if(health < 6){                                  
+					DFAgentDescription medic = new DFAgentDescription();               
+					ServiceDescription sd = new ServiceDescription();                     
+					sd.setType("medic");   
+					medic.addServices(sd);
 					
+					ACLMessage askForTreatment = new ACLMessage(ACLMessage.REQUEST);
+					askForTreatment.setContent("I need help, im sick.");
+					askForTreatment.setConversationId("calling-for-medic");
+					ACLMessage response;
+					
+					try {
+						DFAgentDescription[] result = DFService.search(myAgent,medic);
+						
+						AID[] medicAgents = new AID[result.length];
+						
+						for (int i= 0; i < result.length; ++i) {                           		            	                              
+							medicAgents[i] = result[i].getName();
+							System.out.println("Found the medic " + medicAgents[i].getName());
+						}
+						
+						for (int j = 0;j < result.length;++j){
+						
+							askForTreatment.clearAllReceiver();
+							askForTreatment.addReceiver(medicAgents[j]);				
+							send(askForTreatment);			
+						
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						
+							response = myAgent.receive();
+							
+							if(response.getPerformative() == ACLMessage.CONFIRM && response.getConversationId() == "calling-for-medic") {
+								System.out.println("I am in treatment!");
+								health += 10;
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+							
+							break;
+						}
+									
+					} catch (FIPAException e) {
+						e.printStackTrace();
+					}
+					
+			
+				}
+				else {
 					block();
 				}
 			}
