@@ -24,8 +24,8 @@ public class Medic extends Agent {
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			CheckCrewHealth cch = new CheckCrewHealth(this,20000);
-			addBehaviour(tcd);
+			CheckCrewHealth cch = new CheckCrewHealth(this,10000);
+//			addBehaviour(tcd);
 			addBehaviour(cch);
 		}
 		catch (FIPAException fe) {
@@ -53,7 +53,7 @@ public class Medic extends Agent {
 					String content = msg.getContent();
 					
 					if ((content != null) && msg.getConversationId() == "calling-for-medic") {
-						System.out.println("I am " + getLocalName() + ", and i received a call for help!");
+						System.out.println("I am " + "Medic " + getLocalName() + ", and i received a call for help!");
 						ACLMessage doTreatment = new ACLMessage(ACLMessage.CONFIRM);
 						doTreatment.setContent("I can treat you now.");
 						doTreatment.clearAllReceiver();
@@ -63,7 +63,7 @@ public class Medic extends Agent {
 						
 						System.out.println("Medic " + getLocalName() + ": I am busy treating " + msg.getSender().getLocalName() + "'s health.");
 						try {
-							Thread.sleep(1000);
+							Thread.sleep(5000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -75,7 +75,6 @@ public class Medic extends Agent {
 					}
 					
 					send(reply);
-					System.out.println("Mensagem enviada");
 					
 					
 				} else {
@@ -96,7 +95,7 @@ public class Medic extends Agent {
 		  private static final long serialVersionUID = 1L;                                 
 		                                                                                   
 			protected void onTick() {
-				System.out.println("Trying to find health problems on crew.");                                   
+				System.out.println("Medic " + getLocalName() + "Trying to find health problems on crew.");                                   
 				DFAgentDescription mechanic = new DFAgentDescription();               
 				ServiceDescription sd = new ServiceDescription();                     
 				sd.setType("mechanic");   
@@ -129,6 +128,7 @@ public class Medic extends Agent {
 					for(int j = 0;j < (result.length+result2.length);++j){
 						offerHelp.clearAllReceiver();
 						offerHelp.addReceiver(astronautAgents[j]);
+						System.out.println("Medic " + getLocalName() + ": is astronaut " + astronautAgents[j].getName() + " needing some help?");
 						send(offerHelp);
 						
 						try {
@@ -147,14 +147,14 @@ public class Medic extends Agent {
 							doTreatment.setConversationId("medic");
 							send(doTreatment);
 							System.out.println("Medic " + getLocalName() + ": I am busy treating " + astronautAgents[j].getLocalName() + "'s health.");
-							try {
-								Thread.sleep(5000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
+//							try {
+//								Thread.sleep(5000);
+//							} catch (InterruptedException e) {
+//								e.printStackTrace();
+//							}
 							break;
 						}else if (response.getPerformative() == ACLMessage.DISCONFIRM){
-							System.out.println("Ok...");
+							System.out.println("Medic " + getLocalName() + ": Ok...");
 						}
 						
 					}

@@ -44,6 +44,7 @@ public class Astronaut extends Agent {
 	private int health;
 	private String job;
 	private int random;
+	private boolean onTreatment;
 //	private Hashtable <String, Integer> relationships;
 //	private ArrayList <String> advantages;
 //	private ArrayList <String> disadvantages;
@@ -54,8 +55,8 @@ public class Astronaut extends Agent {
 //		disadvantages = new ArrayList<String>();
 		Object[] args = getArguments();
 		health = 10;
+		onTreatment = false;
 		job = args[0].toString();
-		random = generator.nextInt(4); // 0, 1, 2, 3
 		AID id = new AID(job, AID.ISLOCALNAME);
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(this.getAID());
@@ -90,7 +91,17 @@ public class Astronaut extends Agent {
 				System.out.println("I'm not feeling very well...");
 				health--;
 				System.out.println("New health: " + health);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+						e.printStackTrace();
+				}
+				random = generator.nextInt(4);
 			}
+			
+		if(health <= 0) {
+			takeDown();
+		}	
 		}	
 	}
 	
@@ -118,14 +129,15 @@ public class Astronaut extends Agent {
 										if(health <= 6) {
 											reply.setPerformative(ACLMessage.CONFIRM);
 											reply.setContent("Please, i need help!");
-											System.out.println("REPLY: " + reply.getContent());
+											System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										} else {
 											reply.setPerformative(ACLMessage.DISCONFIRM);
 											reply.setContent("There's no need, im fine!");
-											System.out.println("REPLY: " + reply.getContent());
+											System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										}
 										break;
 									case "treating you...":
+										onTreatment = true;
 										System.out.print(job + " " + getLocalName() + " receiving treatment!!\n");
 										try {
 												Thread.sleep(1000);
@@ -133,13 +145,14 @@ public class Astronaut extends Agent {
 												e.printStackTrace();
 										}
 										health += 3;
+										onTreatment = false;
 								}
 								break;				
 						}
 						send(reply);
 					}
 				}	
-				if(msg.getPerformative() == ACLMessage.INFORM) {
+				if(msg.getPerformative() == ACLMessage.INFORM && onTreatment == false) {
 //					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
 					System.out.println(" ---------------- ");
@@ -147,7 +160,7 @@ public class Astronaut extends Agent {
 					if(health <= 6) {
 						reply.setPerformative(ACLMessage.DISCONFIRM);
 						reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired to do this");
-						System.out.println("REPLY: " + reply.getContent());	
+						System.out.println(job + " " + getLocalName() + ": " + reply.getContent());	
 					}
 					else if ((content != null)) {
 						switch(msg.getConversationId()) {
@@ -157,13 +170,13 @@ public class Astronaut extends Agent {
 										health -= 1;
 										reply.setPerformative(ACLMessage.CONFIRM);
 										reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to perform an extravehicular activity");
-										System.out.println("REPLY: " + reply.getContent());
+										System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										System.out.println("New health: " + health);
 										break;
 									case "everything working fine! almost...":
 										reply.setPerformative(ACLMessage.INFORM);
 										reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
-										System.out.println("REPLY: " + reply.getContent());
+										System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										break;
 								}
 								break;
@@ -172,28 +185,28 @@ public class Astronaut extends Agent {
 									case "Still good...":
 										reply.setPerformative(ACLMessage.INFORM);
 										reply.setContent(job + " "+ getLocalName() + " to Ground Control, everything is fine!");
-										System.out.println("REPLY: " + reply.getContent());
+										System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										break;
 									case "Oxygen hitting critical levels!":
 										health -= 1;
 										reply.setPerformative(ACLMessage.CONFIRM);
 										reply.setContent(job + " "+ getLocalName() + " to Ground Control, going to get some air");
-										System.out.println("REPLY: " + reply.getContent());
+										System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 										System.out.println("New health: " + health);
 										break;
 								}
 								break;
 							default:
-								System.out.println("Time to take some rest...");
+								System.out.println(job + " " + getLocalName() + ": " + "Time to take some rest...");
 								reply.setPerformative(ACLMessage.INFORM);
-								reply.setContent("Time to take some rest...");
+								reply.setContent(job + " " + getLocalName() + ": " + "Time to take some rest...");
 						}
 						
 					} else{
 						System.out.println("REFUSE");
 						reply.setPerformative(ACLMessage.REFUSE);
 						reply.setContent(job + " "+ getLocalName() +" to Ground Control, I'm cant understand, please repeat");
-						System.out.println("REPLY: " + reply.getContent());
+						System.out.println(job + " " + getLocalName() + ": " + reply.getContent());
 					}
 					
 					send(reply);
@@ -201,60 +214,59 @@ public class Astronaut extends Agent {
 					
 					
 				}
-				if(health <= 6){                                  
-					DFAgentDescription medic = new DFAgentDescription();               
-					ServiceDescription sd = new ServiceDescription();                     
-					sd.setType("medic");   
-					medic.addServices(sd);
-					
-					ACLMessage askForTreatment = new ACLMessage(ACLMessage.REQUEST);
-					askForTreatment.setContent("I need help, im sick.");
-					askForTreatment.setConversationId("calling-for-medic");
-					ACLMessage response;
-					
-					try {
-						DFAgentDescription[] result = DFService.search(myAgent,medic);
-						
-						AID[] medicAgents = new AID[result.length];
-						
-						for (int i= 0; i < result.length; ++i) {                           		            	                              
-							medicAgents[i] = result[i].getName();
-							System.out.println("Found the medic " + medicAgents[i].getName());
-						}
-						
-						for (int j = 0;j < result.length;++j){
-						
-							askForTreatment.clearAllReceiver();
-							askForTreatment.addReceiver(medicAgents[j]);				
-							send(askForTreatment);			
-						
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						
-							response = myAgent.receive();
-							
-							if(response.getPerformative() == ACLMessage.CONFIRM && response.getConversationId() == "calling-for-medic") {
-								System.out.println("I am in treatment!");
-								health += 10;
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-							
-							break;
-						}
-									
-					} catch (FIPAException e) {
-						e.printStackTrace();
-					}
-					
-			
-				}
+//				if(health <= 6){
+//					DFAgentDescription medic = new DFAgentDescription();               
+//					ServiceDescription sd = new ServiceDescription();                     
+//					sd.setType("medic");   
+//					medic.addServices(sd);
+//					System.out.println(job + " " + getLocalName() + ": I need help, im sick!");
+//					ACLMessage askForTreatment = new ACLMessage(ACLMessage.REQUEST);
+//					askForTreatment.setContent("I need help, im sick.");
+//					askForTreatment.setConversationId("calling-for-medic");
+//					ACLMessage response;
+//					
+//					try {
+//						DFAgentDescription[] result = DFService.search(myAgent,medic);
+//						
+//						AID[] medicAgents = new AID[result.length];
+//						
+//						for (int i= 0; i < result.length; ++i) {                           		            	                              
+//							medicAgents[i] = result[i].getName();
+//							System.out.println("Found the medic " + medicAgents[i].getName());
+//						}
+//						
+//						for (int j = 0;j < result.length;++j){
+//						
+//							askForTreatment.clearAllReceiver();
+//							askForTreatment.addReceiver(medicAgents[j]);				
+//							send(askForTreatment);			
+//						
+//							try {
+//								Thread.sleep(1000);
+//							} catch (InterruptedException e) {
+//								e.printStackTrace();
+//							}
+//						
+//							response = myAgent.receive();
+//							
+//							if(response.getPerformative() == ACLMessage.CONFIRM && response.getConversationId() == "calling-for-medic") {
+//								System.out.println("I am in treatment!");
+//								health += 1;
+//								try {
+//									Thread.sleep(5000);
+//								} catch (InterruptedException e) {
+//									e.printStackTrace();
+//								}
+//							}
+//							break;
+//						}
+//									
+//					} catch (FIPAException e) {
+//						e.printStackTrace();
+//					}
+//					
+//			
+//				}
 				else {
 					block();
 				}
