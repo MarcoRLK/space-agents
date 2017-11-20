@@ -40,11 +40,13 @@ public class Launcher extends Agent{
 		
 	        ContainerController cc = getContainerController();
 	        AgentController spaceshipController;
+	        AgentController spaceController;
 	        AgentController medicController;
 	        AgentController astronautController1;
 	        AgentController astronautController2;
 	        try {
 	            spaceshipController = cc.createNewAgent("spaceship", "Spaceship", null);
+	            spaceController = cc.createNewAgent("Milky Way", "Space", null);
 	            astronautController1 = cc.createNewAgent("Tom", "Astronaut", argsMechanic);
 	            astronautController2 = cc.createNewAgent("Robert", "Astronaut", argsEngineer);
 	            medicController = cc.createNewAgent("House", "Medic", null);
@@ -52,6 +54,7 @@ public class Launcher extends Agent{
 	            astronautController1.start();
 	            astronautController2.start();
 	            spaceshipController.start();
+	            spaceController.start();
 	            medicController.start();
 	            
 	        } catch (StaleProxyException e) {

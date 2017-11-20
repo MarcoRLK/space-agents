@@ -28,16 +28,15 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-
+import jade.lang.acl.ACLMessage;
+import java.util.Random;
 
 public class Space extends Agent {
-
-		private static final long serialVersionUID = -1133856395135449695L;
-		private AID[] spaceships;
-		int visibility;
+	private static final long serialVersionUID = -1133856395135449695L;
+	Random generator = new Random(System.currentTimeMillis());
+	private int random;
 		
 	protected void setup() {
-		visibility = 10;
 		
 		AID id = new AID("Milky Way", AID.ISLOCALNAME);
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -68,11 +67,70 @@ public class Space extends Agent {
 
 		@Override
 		protected void onTick() {
-			// TODO Auto-generated method stub
+			random = generator.nextInt(7); 
+			//System.out.println("Destiny has choosen: " + random);
+			DFAgentDescription spaceship = new DFAgentDescription();
+			ServiceDescription sd = new ServiceDescription();
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			System.out.println("\n");
+			System.out.println("*** Something happend on Milky Way!!! ***");
 			
+			switch(random) {
+				case 0:
+					System.out.println("No, it didn't, it's everything ok in this galaxy...");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("regular conditions");
+					msg.setConversationId("It's everything ok in this galaxy...");
+					break;
+				case 1:
+					System.out.println("Ordinary meteor shower going on");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("meteor shower");
+					msg.setConversationId("Ooops... things got ugly over here");
+					break;
+				case 2:
+					System.out.println("Bad weather: cosmic storm on the forecast");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("cosmic storm");
+					msg.setConversationId("Ooops... things got ugly over here");
+					break;
+				case 3:
+					System.out.println("Brack Hole, you can start freaking out now");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("black hole");
+					msg.setConversationId("Ooops... things got ugly over here");
+					break;
+				case 4:
+					System.out.println("Did you put your glasses on? Cause the visibility is better now");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("visibility improved");
+					msg.setConversationId("Things got better, yeah!");
+					break;
+				case 5:
+					System.out.println("Hehehe i bet you didn't expect a gas station here");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("gas station found");
+					msg.setConversationId("Things got better, yeah!");
+					break;
+				case 6:
+					System.out.println("OMG i'm so happy");
+					sd.setType("spaceship");
+					spaceship.addServices(sd);
+					msg.setContent("galaxy good humor");
+					msg.setConversationId("Things got better, yeah!");
+					break;
+			
+			}
+			
+			msg.addReceiver(new AID("spaceship", AID.ISLOCALNAME));
+			myAgent.send(msg);
 		}
-		
-		
 	}
 	
 	protected void takeDown() {
@@ -86,11 +144,9 @@ public class Space extends Agent {
 			
 		}
 	} 
-	
+
+
 }
-
-
-
 
 
 

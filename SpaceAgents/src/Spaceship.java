@@ -23,6 +23,7 @@ Boston, MA  02111-1307, USA.
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -41,7 +42,16 @@ public class Spaceship extends Agent {
 	protected void setup() {
 		spaceshipCondition = 10;
 		oxygenLevel = 10;
+		AID id = new AID("spaceship", AID.ISLOCALNAME);
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(this.getAID());
+		ServiceDescription sd = new ServiceDescription(); 
+		sd.setType("spaceship");
+		sd.setName(getName());
+		dfd.addServices(sd); 
+		CheckinSpaceConditions csc = new CheckinSpaceConditions(this);
 		addBehaviour(new SpaceShipIssues(this, 5000));
+		addBehaviour(csc);
 	}
 	
 	
@@ -149,6 +159,86 @@ public class Spaceship extends Agent {
 			catch (FIPAException fe) {
 				fe.printStackTrace();
 			}
+			
+		}
+	}
+	
+	class CheckinSpaceConditions extends CyclicBehaviour{ 
+	
+		private static final long serialVersionUID = 8383983886609432248L;
+
+		public CheckinSpaceConditions(Agent spaceship) {
+			super(spaceship);
+		}
+		
+		@Override
+		public void action() {	
+			ACLMessage msg = myAgent.receive();
+			
+			if (msg!= null) {
+				ACLMessage reply = msg.createReply();
+				if(msg.getPerformative() == ACLMessage.INFORM) {
+					String content = msg.getContent();
+					if ((content != null)) {
+						switch(msg.getConversationId()) {
+							case "It's everything ok in this galaxy...":
+								System.out.println("It's everything ok in this galaxy...");
+								reply.setPerformative(ACLMessage.CONFIRM);
+								reply.setContent("It's all good");
+								break;
+							case "Ooops... things got ugly over here":
+								switch(content) {
+									case "meteor shower":
+										spaceshipCondition -= 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("1");
+										System.out.println("Oh no, we're facing a meteor shower, new Spaceship condition is: " + spaceshipCondition);
+										break;
+									case "cosmic storm":
+										spaceshipCondition -= 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("2");
+										System.out.println("Crap! There's a cosmic storm ahead, new Spaceship condition is: " + spaceshipCondition);
+										break;
+									case "black hole":
+										spaceshipCondition = 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("3");
+										System.out.println("F*** a black hole! Thigs got pretty ugly, new Spaceship condition is: " + spaceshipCondition);
+										break;
+								}
+								break;
+							case "Things got better, yeah!":
+								switch(content) {
+									case "visibility improved":
+										spaceshipCondition += 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("4");
+										System.out.println("Nice, visibility improved, new Spaceship condition is: " + spaceshipCondition);
+										break;
+									case "gas station found":
+										spaceshipCondition += 2;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("5");
+										System.out.println("Thar's werid, a gas station around here. Well, let's fill up the tank, new Spaceship condition is: " + spaceshipCondition);
+										break;
+									case "galaxy good humor":
+										spaceshipCondition += 1;
+										oxygenLevel += 1;
+										reply.setPerformative(ACLMessage.CONFIRM);
+										reply.setContent("6");
+										System.out.println("Oh Galaxy, are you smiling at me? Thanks my little Milky Way! New Spaceship condition is: " + spaceshipCondition);
+										System.out.println("Oxigen level is now at: " + oxygenLevel);
+										break;
+								}
+								break;
+						}
+						System.out.println("\n");
+					}
+					
+				}
+			}
+			
 			
 		}
 	}
