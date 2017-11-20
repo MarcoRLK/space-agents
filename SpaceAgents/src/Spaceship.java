@@ -50,7 +50,7 @@ public class Spaceship extends Agent {
 		sd.setName(getName());
 		dfd.addServices(sd); 
 		CheckinSpaceConditions csc = new CheckinSpaceConditions(this);
-		addBehaviour(new SpaceShipIssues(this, 5000));
+		addBehaviour(new SpaceShipIssues(this, 15000));
 		addBehaviour(csc);
 	}
 	
@@ -63,14 +63,14 @@ public class Spaceship extends Agent {
 		@Override
 		protected void onTick() {
 			random = generator.nextInt(3); // 0, 1, 2
-			System.out.println("AAAAAAAAAAAAAAAAAAAAA: " + random);
 			DFAgentDescription astronaut = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			System.out.println(
-							"\n//////////NEW ROUND!///////////////" +
+							"\n-------------------- New round! -------------------------" +
+							"\nSpaceship info:" +
 							"\nSpaceship condition: " + spaceshipCondition +
-							"\nOxygen level: " + oxygenLevel
+							"\nOxygen level: " + oxygenLevel + "\n"
 							);
 			
 			switch(random) {
@@ -106,7 +106,7 @@ public class Spaceship extends Agent {
 					break;
 				case 2:
 					oxygenLevel -= 2;
-					System.out.println("Oxygen levels going low...\n Oxygel levels: " + oxygenLevel);
+					System.out.println("Oxygen levels going low...\nOxygen levels: " + oxygenLevel);
 					if( oxygenLevel > 6) {
 						sd.setType("engineer");
 						astronaut.addServices(sd);
@@ -201,7 +201,7 @@ public class Spaceship extends Agent {
 										System.out.println("Crap! There's a cosmic storm ahead, new Spaceship condition is: " + spaceshipCondition);
 										break;
 									case "black hole":
-										spaceshipCondition = 1;
+										spaceshipCondition -= 3;
 										reply.setPerformative(ACLMessage.CONFIRM);
 										reply.setContent("3");
 										System.out.println("F*** a black hole! Thigs got pretty ugly, new Spaceship condition is: " + spaceshipCondition);

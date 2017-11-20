@@ -47,7 +47,7 @@ public class Space extends Agent {
 		dfd.addServices(sd); 
 		try {
 			DFService.register(this, dfd);
-			SpaceEvents se = new SpaceEvents(this, 5000);
+			SpaceEvents se = new SpaceEvents(this, 60000);
 			addBehaviour(se);
 		}
 		catch (FIPAException fe) {

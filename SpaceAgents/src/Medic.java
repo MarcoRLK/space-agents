@@ -24,7 +24,7 @@ public class Medic extends Agent {
 		try {
 			DFService.register(this, dfd);
 			TreatingCrewDiseases tcd = new TreatingCrewDiseases(this);
-			CheckCrewHealth cch = new CheckCrewHealth(this,10000);
+			CheckCrewHealth cch = new CheckCrewHealth(this,25000);
 //			addBehaviour(tcd);
 			addBehaviour(cch);
 		}
@@ -95,7 +95,8 @@ public class Medic extends Agent {
 		  private static final long serialVersionUID = 1L;                                 
 		                                                                                   
 			protected void onTick() {
-				System.out.println("Medic " + getLocalName() + "Trying to find health problems on crew.");                                   
+				System.out.println("\n---------------------------------------------------");
+				System.out.println("\nMedic " + getLocalName() + " trying to find health problems on crew.");                                   
 				DFAgentDescription mechanic = new DFAgentDescription();               
 				ServiceDescription sd = new ServiceDescription();                     
 				sd.setType("mechanic");   
@@ -119,11 +120,11 @@ public class Medic extends Agent {
 					astronautAgents = new AID[result.length + result2.length];
 					for (int i= 0; i < result.length; ++i) {                           		            	                              
 						astronautAgents[i] = result[i].getName();
-						System.out.println("Found the astronaut " + astronautAgents[i].getName());
+//						System.out.println("Found the astronaut " + astronautAgents[i].getName());
 					}
 					for(int z = 0; z < result2.length; z++) {
 						astronautAgents[z + result.length] = result2[z].getName();
-						System.out.println("Found the astronaut " + astronautAgents[z + result.length].getName());
+//						System.out.println("Found the astronaut " + astronautAgents[z + result.length].getName());
 					}
 					for(int j = 0;j < (result.length+result2.length);++j){
 						offerHelp.clearAllReceiver();

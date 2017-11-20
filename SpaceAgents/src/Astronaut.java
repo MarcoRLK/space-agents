@@ -67,7 +67,7 @@ public class Astronaut extends Agent {
 		try {
 			DFService.register(this, dfd);
 			FindingSpaceshipIssues fssi = new FindingSpaceshipIssues(this);
-			ImOnlyHumanBehaviour humanBehaviour = new ImOnlyHumanBehaviour(this, 5000);
+			ImOnlyHumanBehaviour humanBehaviour = new ImOnlyHumanBehaviour(this, 35000);
 			addBehaviour(fssi);
 			addBehaviour(humanBehaviour);
 		}
@@ -103,12 +103,13 @@ public class Astronaut extends Agent {
 		
 		private static final long serialVersionUID = 1L;
 		
+		
 		public FindingSpaceshipIssues(Agent astronaut) {
 			super(astronaut);
 		}
 		
 		@Override
-		public void action() {	
+		public void action() {
 			ACLMessage msg = myAgent.receive();
 			
 			if (msg!= null) {
@@ -149,8 +150,8 @@ public class Astronaut extends Agent {
 				if(msg.getPerformative() == ACLMessage.INFORM && onTreatment == false) {
 //					System.out.println("Recebi o request!!");
 					String content = msg.getContent();
-					System.out.println(" ---------------- ");
-					System.out.println(job + " " + getLocalName() + "\nHealth:" + health + "\nreceived a inform: " + content);
+					System.out.println("\n---------------------------------------------------");
+					System.out.println(job + " " + getLocalName() + "\nHealth:" + health + "\nReceived a inform: " + content);
 					if(health <= 6) {
 						reply.setPerformative(ACLMessage.DISCONFIRM);
 						reply.setContent(job + " "+ getLocalName() + " to Ground Control, i'm too tired to do this");
